@@ -5,9 +5,14 @@ import { Upload } from 'lucide-react';
 import { Card } from './ui/card';
 import { useToast } from './ui/use-toast';
 import * as pdfjsLib from 'pdfjs-dist';
+import { getDocument } from 'pdfjs-dist/build/pdf';
+import { GlobalWorkerOptions } from 'pdfjs-dist/build/pdf';
 
-// Set worker path
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Use the local worker from node_modules
+GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.js',
+  import.meta.url
+).toString();
 
 interface FileUploadProps {
   onFileUpload: (file: File, score: number) => void;
@@ -144,8 +149,8 @@ export const FileUpload = ({ onFileUpload }: FileUploadProps) => {
       try {
         // Convert File to ArrayBuffer
         const arrayBuffer = await file.arrayBuffer();
-        // Load PDF document
-        const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+        // Load PDF document using the imported getDocument function
+        const pdf = await getDocument(arrayBuffer).promise;
         
         // Extract text from all pages
         let fullText = '';
@@ -193,9 +198,7 @@ export const FileUpload = ({ onFileUpload }: FileUploadProps) => {
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: {
-      'application/pdf': ['.pdf'],
-      'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+      'application/pdf': ['.pdf']
     },
     multiple: false,
   });
