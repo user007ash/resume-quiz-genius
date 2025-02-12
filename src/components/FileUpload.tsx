@@ -4,7 +4,10 @@ import { useDropzone } from 'react-dropzone';
 import { Upload } from 'lucide-react';
 import { Card } from './ui/card';
 import { useToast } from './ui/use-toast';
-import * as pdfParse from 'pdf-parse';
+import * as pdfjsLib from 'pdfjs-dist';
+
+// Set worker path
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 interface FileUploadProps {
   onFileUpload: (file: File, score: number) => void;
@@ -139,9 +142,21 @@ export const FileUpload = ({ onFileUpload }: FileUploadProps) => {
       const file = acceptedFiles[0];
       
       try {
+        // Convert File to ArrayBuffer
         const arrayBuffer = await file.arrayBuffer();
-        const pdfData = await pdfParse(arrayBuffer);
-        const analysis = await analyzeResume(pdfData.text);
+        // Load PDF document
+        const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+        
+        // Extract text from all pages
+        let fullText = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map((item: any) => item.str).join(' ');
+          fullText += pageText + '\n';
+        }
+
+        const analysis = await analyzeResume(fullText);
 
         if (!analysis.isResume) {
           toast({
@@ -154,7 +169,6 @@ export const FileUpload = ({ onFileUpload }: FileUploadProps) => {
 
         onFileUpload(file, analysis.score);
 
-        // Show feedback toast
         toast({
           title: "Resume Analysis Complete",
           description: `Score: ${analysis.score}%. ${
@@ -202,7 +216,7 @@ export const FileUpload = ({ onFileUpload }: FileUploadProps) => {
           <p className="text-lg font-medium">Drop your resume here</p>
           <p className="text-sm text-gray-500">or click to browse</p>
         </div>
-        <p className="text-xs text-gray-400">Supports PDF, DOC, DOCX</p>
+        <p className="text-xs text-gray-400">Supports PDF</p>
       </div>
     </Card>
   );
