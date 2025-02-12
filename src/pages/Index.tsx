@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { FileUpload } from '@/components/FileUpload';
 import { ATSScore } from '@/components/ATSScore';
@@ -7,9 +6,16 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { interviewQuestions } from '@/data/questions';
 
+interface AnswerAnalysis {
+  text: string;
+  hesitations: number;
+  duration: number;
+  confidence: number;
+}
+
 interface Answer {
   question: string;
-  answer: string;
+  analysis: AnswerAnalysis;
   type: 'hr' | 'technical';
 }
 
@@ -33,11 +39,74 @@ const Index = () => {
     setStep(2);
   };
 
-  const handleAnswer = (answer: string) => {
+  const analyzeAnswers = (allAnswers: Answer[]) => {
+    let hrScore = 0;
+    let technicalScore = 0;
+    
+    allAnswers.forEach(answer => {
+      // Calculate score based on confidence, hesitations, and duration
+      const confidenceScore = answer.analysis.confidence * 40; // 40% weight to confidence
+      const hesitationPenalty = Math.min(answer.analysis.hesitations * 5, 30); // Up to 30% penalty for hesitations
+      const durationScore = answer.analysis.duration > 10 && answer.analysis.duration < 120 ? 30 : 15; // 30% for optimal duration
+      
+      const answerScore = Math.min(Math.max(confidenceScore + durationScore - hesitationPenalty, 0), 100);
+      
+      if (answer.type === 'hr') {
+        hrScore += answerScore;
+      } else {
+        technicalScore += answerScore;
+      }
+    });
+
+    // Calculate average scores
+    const hrQuestions = allAnswers.filter(a => a.type === 'hr').length;
+    const technicalQuestions = allAnswers.filter(a => a.type === 'technical').length;
+    
+    hrScore = Math.round(hrScore / (hrQuestions || 1));
+    technicalScore = Math.round(technicalScore / (technicalQuestions || 1));
+
+    return {
+      hrScore,
+      technicalScore,
+      overallScore: Math.round((hrScore + technicalScore) / 2),
+      feedback: generateFeedback(allAnswers)
+    };
+  };
+
+  const generateFeedback = (answers: Answer[]): string[] => {
+    const feedback: string[] = [];
+    
+    // Analyze confidence
+    const avgConfidence = answers.reduce((sum, ans) => sum + ans.analysis.confidence, 0) / answers.length;
+    if (avgConfidence < 0.7) {
+      feedback.push("Try to speak more confidently and clearly");
+    }
+
+    // Analyze hesitations
+    const totalHesitations = answers.reduce((sum, ans) => sum + ans.analysis.hesitations, 0);
+    if (totalHesitations > answers.length * 2) {
+      feedback.push("Work on reducing filler words and pauses in your responses");
+    }
+
+    // Analyze answer length
+    const avgDuration = answers.reduce((sum, ans) => sum + ans.analysis.duration, 0) / answers.length;
+    if (avgDuration < 30) {
+      feedback.push("Consider providing more detailed responses");
+    } else if (avgDuration > 120) {
+      feedback.push("Try to be more concise in your answers");
+    }
+
+    // Add general feedback
+    feedback.push("Practice structuring your answers using the STAR method");
+    
+    return feedback;
+  };
+
+  const handleAnswer = (answer: AnswerAnalysis) => {
     const currentQuestion = allQuestions[currentQuestionIndex];
     setAnswers([...answers, {
       question: currentQuestion.question,
-      answer,
+      analysis: answer,
       type: currentQuestion.type
     }]);
 
@@ -45,32 +114,13 @@ const Index = () => {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setCurrentQuestionType(allQuestions[currentQuestionIndex + 1].type);
     } else {
-      analyzeAnswers([...answers, {
+      const analysis = analyzeAnswers([...answers, {
         question: currentQuestion.question,
-        answer,
+        analysis: answer,
         type: currentQuestion.type
       }]);
       setStep(4);
     }
-  };
-
-  const analyzeAnswers = (allAnswers: Answer[]) => {
-    // Mock AI analysis (replace with actual AI analysis)
-    const hrScore = Math.floor(Math.random() * 30) + 70;
-    const technicalScore = Math.floor(Math.random() * 30) + 70;
-    const overallScore = Math.floor((hrScore + technicalScore) / 2);
-
-    return {
-      hrScore,
-      technicalScore,
-      overallScore,
-      feedback: [
-        "Great communication skills shown in HR responses",
-        "Technical answers could benefit from more specific examples",
-        "Good understanding of core concepts",
-        "Consider providing more quantifiable results in your answers"
-      ]
-    };
   };
 
   return (
