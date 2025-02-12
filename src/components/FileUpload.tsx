@@ -3,19 +3,178 @@ import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload } from 'lucide-react';
 import { Card } from './ui/card';
+import { useToast } from './ui/use-toast';
+import * as pdfParse from 'pdf-parse';
 
 interface FileUploadProps {
-  onFileUpload: (file: File) => void;
+  onFileUpload: (file: File, score: number) => void;
+}
+
+interface ResumeAnalysis {
+  isResume: boolean;
+  score: number;
+  sections: {
+    hasContact: boolean;
+    hasEducation: boolean;
+    hasExperience: boolean;
+    hasSkills: boolean;
+  };
+  keywords: {
+    total: number;
+    matched: number;
+  };
+  formatting: {
+    hasProperStructure: boolean;
+    hasConsistentFormatting: boolean;
+  };
 }
 
 export const FileUpload = ({ onFileUpload }: FileUploadProps) => {
   const [isDragging, setIsDragging] = useState(false);
+  const { toast } = useToast();
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    if (acceptedFiles.length > 0) {
-      onFileUpload(acceptedFiles[0]);
+  const analyzeResume = async (text: string): Promise<ResumeAnalysis> => {
+    // Common resume sections and keywords
+    const sections = {
+      contact: /(?:email|phone|address|linkedin)/i,
+      education: /(?:education|university|college|degree|bachelor|master|phd)/i,
+      experience: /(?:experience|work|employment|job|position|role)/i,
+      skills: /(?:skills|technologies|tools|programming|languages)/i
+    };
+
+    const commonKeywords = [
+      'experience', 'skills', 'education', 'project', 'achievement',
+      'leadership', 'management', 'development', 'analysis', 'team',
+      'communication', 'solution', 'implementation', 'strategy', 'results'
+    ];
+
+    // Check if it's actually a resume
+    const resumeIndicators = [
+      /resume|cv|curriculum\s*vitae/i,
+      /work\s*experience/i,
+      /education|qualification/i,
+      /skills|expertise/i
+    ];
+
+    const isResume = resumeIndicators.some(indicator => indicator.test(text));
+
+    if (!isResume) {
+      return {
+        isResume: false,
+        score: 0,
+        sections: {
+          hasContact: false,
+          hasEducation: false,
+          hasExperience: false,
+          hasSkills: false
+        },
+        keywords: {
+          total: commonKeywords.length,
+          matched: 0
+        },
+        formatting: {
+          hasProperStructure: false,
+          hasConsistentFormatting: false
+        }
+      };
     }
-  }, [onFileUpload]);
+
+    // Analyze sections
+    const sectionsAnalysis = {
+      hasContact: sections.contact.test(text),
+      hasEducation: sections.education.test(text),
+      hasExperience: sections.experience.test(text),
+      hasSkills: sections.skills.test(text)
+    };
+
+    // Analyze keywords
+    const matchedKeywords = commonKeywords.filter(keyword => 
+      new RegExp(keyword, 'i').test(text)
+    );
+
+    // Check formatting
+    const hasProperStructure = text.includes('\n') && 
+      /[A-Z][a-z]+:/.test(text) && 
+      text.split('\n').length > 10;
+
+    const hasConsistentFormatting = 
+      (/•|\-|\*/).test(text) && // Has bullet points
+      (/\d{4}/).test(text) &&   // Has years
+      (/[A-Z][a-z]+,/).test(text); // Has proper comma usage
+
+    // Calculate score
+    let score = 0;
+    
+    // Section scores (40%)
+    score += sectionsAnalysis.hasContact ? 10 : 0;
+    score += sectionsAnalysis.hasEducation ? 10 : 0;
+    score += sectionsAnalysis.hasExperience ? 10 : 0;
+    score += sectionsAnalysis.hasSkills ? 10 : 0;
+
+    // Keyword matching (30%)
+    const keywordScore = (matchedKeywords.length / commonKeywords.length) * 30;
+    score += keywordScore;
+
+    // Formatting (30%)
+    score += hasProperStructure ? 15 : 0;
+    score += hasConsistentFormatting ? 15 : 0;
+
+    return {
+      isResume,
+      score: Math.round(score),
+      sections: sectionsAnalysis,
+      keywords: {
+        total: commonKeywords.length,
+        matched: matchedKeywords.length
+      },
+      formatting: {
+        hasProperStructure,
+        hasConsistentFormatting
+      }
+    };
+  };
+
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 0) {
+      const file = acceptedFiles[0];
+      
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfData = await pdfParse(arrayBuffer);
+        const analysis = await analyzeResume(pdfData.text);
+
+        if (!analysis.isResume) {
+          toast({
+            title: "Invalid Document",
+            description: "The uploaded file doesn't appear to be a resume. Please upload a valid resume.",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        onFileUpload(file, analysis.score);
+
+        // Show feedback toast
+        toast({
+          title: "Resume Analysis Complete",
+          description: `Score: ${analysis.score}%. ${
+            analysis.score < 70 
+              ? "Consider improving your resume's structure and content." 
+              : "Great job! Your resume is well-optimized."
+          }`,
+          duration: 5000
+        });
+
+      } catch (error) {
+        console.error('Error processing PDF:', error);
+        toast({
+          title: "Error",
+          description: "Failed to process the PDF file. Please try again.",
+          variant: "destructive"
+        });
+      }
+    }
+  }, [onFileUpload, toast]);
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
