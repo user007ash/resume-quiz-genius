@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload } from 'lucide-react';
@@ -7,14 +6,8 @@ import { useToast } from './ui/use-toast';
 import * as pdfjsLib from 'pdfjs-dist';
 import { PDFDocumentProxy } from 'pdfjs-dist';
 
-// Set up PDF.js worker in a way that works with Vite
-if (typeof window !== 'undefined') {
-  const pdfjsWorkerUrl = new URL(
-    'pdfjs-dist/build/pdf.worker.min.js',
-    import.meta.url,
-  );
-  pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl.toString();
-}
+// Set worker source using a CDN that's known to work
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 interface FileUploadProps {
   onFileUpload: (file: File, resumeText: string) => void;
@@ -152,12 +145,12 @@ export const FileUpload = ({ onFileUpload }: FileUploadProps) => {
         // Convert File to ArrayBuffer
         const arrayBuffer = await file.arrayBuffer();
         
-        // Load PDF document with explicit typing
+        // Load PDF document with explicit configuration
         const loadingTask = pdfjsLib.getDocument({
           data: arrayBuffer,
-          useWorkerFetch: false, // Disable worker fetch
-          isEvalSupported: false, // Disable eval
-          standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/standard_fonts/`,
+          cMapUrl: 'https://unpkg.com/pdfjs-dist@' + pdfjsLib.version + '/cmaps/',
+          cMapPacked: true,
+          standardFontDataUrl: 'https://unpkg.com/pdfjs-dist@' + pdfjsLib.version + '/standard_fonts/'
         });
         
         const pdf = await loadingTask.promise;
