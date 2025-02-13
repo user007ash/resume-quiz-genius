@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
 import { Mic, MicOff } from 'lucide-react';
+import { useToast } from './ui/use-toast';
 
 interface QuestionCardProps {
   question: string;
@@ -24,17 +25,18 @@ export const QuestionCard = ({ question, onAnswer, isLast, questionType }: Quest
   const [hesitationCount, setHesitationCount] = useState(0);
   const [confidenceSum, setConfidenceSum] = useState(0);
   const [resultCount, setResultCount] = useState(0);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.lang = 'en-US';
+        const recognitionInstance = new SpeechRecognition();
+        recognitionInstance.continuous = true;
+        recognitionInstance.interimResults = true;
+        recognitionInstance.lang = 'en-US';
         
-        recognition.onresult = (event) => {
+        recognitionInstance.onresult = (event) => {
           let finalTranscript = '';
           let hasHesitation = false;
           let currentConfidence = 0;
@@ -49,7 +51,6 @@ export const QuestionCard = ({ question, onAnswer, isLast, questionType }: Quest
               setResultCount(prev => prev + 1);
               setConfidenceSum(prev => prev + confidence);
             } else {
-              // Check for hesitation markers like "uh", "um", pauses
               if (transcript.toLowerCase().includes('uh') || 
                   transcript.toLowerCase().includes('um') ||
                   transcript.toLowerCase().includes('...')) {
@@ -67,42 +68,102 @@ export const QuestionCard = ({ question, onAnswer, isLast, questionType }: Quest
           }
         };
 
-        recognition.onerror = (event) => {
+        recognitionInstance.onerror = (event) => {
           console.error('Speech recognition error:', event.error);
+          if (event.error !== 'no-speech') {
+            toast({
+              title: "Recognition Error",
+              description: "There was an error with speech recognition. Please try again.",
+              variant: "destructive"
+            });
+            stopRecording();
+          }
+        };
+
+        recognitionInstance.onend = () => {
           setIsListening(false);
         };
 
-        setRecognition(recognition);
+        setRecognition(recognitionInstance);
+      } else {
+        toast({
+          title: "Browser Not Supported",
+          description: "Speech recognition is not supported in your browser. Please try Chrome or Edge.",
+          variant: "destructive"
+        });
       }
     }
+
+    return () => {
+      if (recognition) {
+        recognition.onresult = null;
+        recognition.onerror = null;
+        recognition.onend = null;
+        try {
+          recognition.stop();
+        } catch (error) {
+          console.error('Error stopping recognition:', error);
+        }
+      }
+    };
   }, []);
 
   const startRecording = useCallback(() => {
-    if (!recognition) return;
-    setCurrentTranscript('');
-    setHesitationCount(0);
-    setConfidenceSum(0);
-    setResultCount(0);
-    setRecordingStartTime(Date.now());
-    recognition.start();
-    setIsListening(true);
-  }, [recognition]);
+    if (!recognition) {
+      toast({
+        title: "Error",
+        description: "Speech recognition is not available.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (isListening) {
+      console.warn('Recognition is already active');
+      return;
+    }
+
+    try {
+      setCurrentTranscript('');
+      setHesitationCount(0);
+      setConfidenceSum(0);
+      setResultCount(0);
+      setRecordingStartTime(Date.now());
+      recognition.start();
+      setIsListening(true);
+    } catch (error) {
+      console.error('Error starting recognition:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start recording. Please try again.",
+        variant: "destructive"
+      });
+    }
+  }, [recognition, isListening, toast]);
 
   const stopRecording = useCallback(() => {
     if (!recognition || !recordingStartTime) return;
-    recognition.stop();
-    setIsListening(false);
-    
-    const duration = (Date.now() - recordingStartTime) / 1000; // duration in seconds
-    const averageConfidence = resultCount > 0 ? confidenceSum / resultCount : 0;
-    
-    onAnswer({
-      text: currentTranscript.trim(),
-      hesitations: hesitationCount,
-      duration,
-      confidence: averageConfidence
-    });
-  }, [recognition, recordingStartTime, currentTranscript, hesitationCount, confidenceSum, resultCount, onAnswer]);
+
+    try {
+      recognition.stop();
+      const duration = (Date.now() - recordingStartTime) / 1000;
+      const averageConfidence = resultCount > 0 ? confidenceSum / resultCount : 0;
+      
+      onAnswer({
+        text: currentTranscript.trim(),
+        hesitations: hesitationCount,
+        duration,
+        confidence: averageConfidence
+      });
+    } catch (error) {
+      console.error('Error stopping recognition:', error);
+      toast({
+        title: "Error",
+        description: "Failed to stop recording. Please try again.",
+        variant: "destructive"
+      });
+    }
+  }, [recognition, recordingStartTime, currentTranscript, hesitationCount, confidenceSum, resultCount, onAnswer, toast]);
 
   return (
     <Card className="p-6 animate-fade-up">
@@ -134,6 +195,7 @@ export const QuestionCard = ({ question, onAnswer, isLast, questionType }: Quest
             size="lg"
             className="rounded-full w-16 h-16"
             onClick={isListening ? stopRecording : startRecording}
+            disabled={!recognition}
           >
             {isListening ? (
               <MicOff className="h-6 w-6" />
