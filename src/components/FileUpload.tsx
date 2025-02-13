@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload } from 'lucide-react';
@@ -9,7 +10,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 interface FileUploadProps {
-  onFileUpload: (file: File, score: number) => void;
+  onFileUpload: (file: File, resumeText: string) => void;
 }
 
 interface ResumeAnalysis {
@@ -167,7 +168,7 @@ export const FileUpload = ({ onFileUpload }: FileUploadProps) => {
           return;
         }
 
-        onFileUpload(file, analysis.score);
+        onFileUpload(file, fullText);
 
         toast({
           title: "Resume Analysis Complete",

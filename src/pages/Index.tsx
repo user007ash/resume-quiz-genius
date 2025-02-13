@@ -5,6 +5,8 @@ import { QuestionCard } from '@/components/QuestionCard';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { interviewQuestions } from '@/data/questions';
+import { generateQuestionsFromResume } from '@/utils/resumeQuestionGenerator';
+import { useToast } from '@/components/ui/use-toast';
 
 interface AnswerAnalysis {
   text: string;
@@ -26,17 +28,44 @@ const Index = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [currentQuestionType, setCurrentQuestionType] = useState<'hr' | 'technical'>('hr');
+  const [allQuestions, setAllQuestions] = useState<{ question: string; type: 'hr' | 'technical' }[]>([]);
+  const { toast } = useToast();
 
-  const allQuestions = [
-    ...interviewQuestions.hr.map(q => ({ question: q, type: 'hr' as const })),
-    ...interviewQuestions.technical.map(q => ({ question: q, type: 'technical' as const }))
-  ];
-
-  const handleFileUpload = async (uploadedFile: File) => {
+  const handleFileUpload = async (uploadedFile: File, resumeText: string) => {
     setFile(uploadedFile);
-    // Mock ATS score (replace with actual AI analysis)
     setAtsScore(Math.floor(Math.random() * 40) + 60);
-    setStep(2);
+
+    try {
+      // Generate questions from resume
+      const generatedQuestions = await generateQuestionsFromResume(resumeText);
+      
+      // Combine generated questions with premade questions
+      const combinedQuestions = [
+        ...generatedQuestions,
+        ...interviewQuestions.hr.map(q => ({ question: q, type: 'hr' as const })),
+        ...interviewQuestions.technical.map(q => ({ question: q, type: 'technical' as const }))
+      ];
+
+      // Shuffle the questions
+      const shuffledQuestions = combinedQuestions.sort(() => Math.random() - 0.5);
+      setAllQuestions(shuffledQuestions);
+      setStep(2);
+    } catch (error) {
+      console.error('Error preparing questions:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate questions. Using default questions instead.",
+        variant: "destructive"
+      });
+
+      // Fallback to premade questions
+      const defaultQuestions = [
+        ...interviewQuestions.hr.map(q => ({ question: q, type: 'hr' as const })),
+        ...interviewQuestions.technical.map(q => ({ question: q, type: 'technical' as const }))
+      ];
+      setAllQuestions(defaultQuestions);
+      setStep(2);
+    }
   };
 
   const analyzeAnswers = (allAnswers: Answer[]) => {
@@ -147,7 +176,7 @@ const Index = () => {
             </div>
           )}
 
-          {step === 3 && (
+          {step === 3 && allQuestions.length > 0 && (
             <QuestionCard
               question={allQuestions[currentQuestionIndex].question}
               questionType={allQuestions[currentQuestionIndex].type}
@@ -189,6 +218,7 @@ const Index = () => {
                     setCurrentQuestionIndex(0);
                     setFile(null);
                     setAtsScore(null);
+                    setAllQuestions([]);
                   }}
                   className="w-full"
                 >
