@@ -1,14 +1,12 @@
-
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload } from 'lucide-react';
 import { Card } from './ui/card';
 import { useToast } from './ui/use-toast';
 import * as pdfjsLib from 'pdfjs-dist';
-import pdfWorker from 'pdfjs-dist/build/pdf.worker.entry';
 
-// Set worker using the imported worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
+// Set worker source directly
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 interface FileUploadProps {
   onFileUpload: (file: File, score: number) => void;
