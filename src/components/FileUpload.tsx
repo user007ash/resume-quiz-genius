@@ -6,8 +6,9 @@ import { Card } from './ui/card';
 import { useToast } from './ui/use-toast';
 import * as pdfjsLib from 'pdfjs-dist';
 
-// Set worker source directly
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Configure PDF.js worker
+const pdfjsWorker = await import('pdfjs-dist/build/pdf.worker.min.js');
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker.default;
 
 interface FileUploadProps {
   onFileUpload: (file: File, resumeText: string) => void;
