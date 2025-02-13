@@ -5,10 +5,16 @@ import { Upload } from 'lucide-react';
 import { Card } from './ui/card';
 import { useToast } from './ui/use-toast';
 import * as pdfjsLib from 'pdfjs-dist';
+import { PDFDocumentProxy } from 'pdfjs-dist';
 
-// Configure PDF.js worker
-const pdfjsWorker = await import('pdfjs-dist/build/pdf.worker.min.js');
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker.default;
+// Set up PDF.js worker in a way that works with Vite
+if (typeof window !== 'undefined') {
+  const pdfjsWorkerUrl = new URL(
+    'pdfjs-dist/build/pdf.worker.min.js',
+    import.meta.url,
+  );
+  pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl.toString();
+}
 
 interface FileUploadProps {
   onFileUpload: (file: File, resumeText: string) => void;
@@ -145,8 +151,15 @@ export const FileUpload = ({ onFileUpload }: FileUploadProps) => {
       try {
         // Convert File to ArrayBuffer
         const arrayBuffer = await file.arrayBuffer();
-        // Load PDF document
-        const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+        
+        // Load PDF document with explicit typing
+        const loadingTask = pdfjsLib.getDocument({
+          data: arrayBuffer,
+          useWorkerFetch: false, // Disable worker fetch
+          isEvalSupported: false, // Disable eval
+          standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/standard_fonts/`,
+        });
+        
         const pdf = await loadingTask.promise;
         
         // Extract text from all pages
@@ -154,7 +167,9 @@ export const FileUpload = ({ onFileUpload }: FileUploadProps) => {
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
-          const pageText = textContent.items.map((item: any) => item.str).join(' ');
+          const pageText = textContent.items
+            .map((item: any) => item.str)
+            .join(' ');
           fullText += pageText + '\n';
         }
 
