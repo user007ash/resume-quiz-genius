@@ -19,6 +19,11 @@ const Index = () => {
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [currentQuestionType, setCurrentQuestionType] = useState<'hr' | 'technical'>('hr');
   const [allQuestions, setAllQuestions] = useState<InterviewQuestion[]>([]);
+  const [analysisResult, setAnalysisResult] = useState<{
+    hrScore: number;
+    technicalScore: number;
+    feedback: string[];
+  }>({ hrScore: 0, technicalScore: 0, feedback: [] });
   const { toast } = useToast();
 
   const handleFileUpload = async (uploadedFile: File, resumeText: string) => {
@@ -56,21 +61,24 @@ const Index = () => {
 
   const handleAnswer = (answer: AnswerAnalysis) => {
     const currentQuestion = allQuestions[currentQuestionIndex];
-    setAnswers([...answers, {
+    const newAnswers = [...answers, {
       question: currentQuestion.question,
       analysis: answer,
       type: currentQuestion.type
-    }]);
+    }];
+    
+    setAnswers(newAnswers);
 
     if (currentQuestionIndex < allQuestions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setCurrentQuestionType(allQuestions[currentQuestionIndex + 1].type);
     } else {
-      analyzeAnswers([...answers, {
-        question: currentQuestion.question,
-        analysis: answer,
-        type: currentQuestion.type
-      }]);
+      const result = analyzeAnswers(newAnswers);
+      setAnalysisResult({
+        hrScore: result.hrScore,
+        technicalScore: result.technicalScore,
+        feedback: result.feedback
+      });
       setStep(4);
     }
   };
@@ -118,7 +126,12 @@ const Index = () => {
           )}
 
           {step === 4 && (
-            <PerformanceReview onRestart={handleRestart} />
+            <PerformanceReview 
+              onRestart={handleRestart}
+              hrScore={analysisResult.hrScore}
+              technicalScore={analysisResult.technicalScore}
+              feedback={analysisResult.feedback}
+            />
           )}
         </div>
       </div>
