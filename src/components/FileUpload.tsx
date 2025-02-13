@@ -4,10 +4,12 @@ import { Upload } from 'lucide-react';
 import { Card } from './ui/card';
 import { useToast } from './ui/use-toast';
 import * as pdfjsLib from 'pdfjs-dist';
-import { PDFDocumentProxy } from 'pdfjs-dist';
 
-// Set worker source using a CDN that's known to work
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Initialize PDF.js with a bundled worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.mjs',
+  import.meta.url
+).toString();
 
 interface FileUploadProps {
   onFileUpload: (file: File, resumeText: string) => void;
@@ -145,15 +147,11 @@ export const FileUpload = ({ onFileUpload }: FileUploadProps) => {
         // Convert File to ArrayBuffer
         const arrayBuffer = await file.arrayBuffer();
         
-        // Load PDF document with explicit configuration
-        const loadingTask = pdfjsLib.getDocument({
+        // Load PDF document
+        const pdf = await pdfjsLib.getDocument({
           data: arrayBuffer,
-          cMapUrl: 'https://unpkg.com/pdfjs-dist@' + pdfjsLib.version + '/cmaps/',
-          cMapPacked: true,
-          standardFontDataUrl: 'https://unpkg.com/pdfjs-dist@' + pdfjsLib.version + '/standard_fonts/'
-        });
-        
-        const pdf = await loadingTask.promise;
+          verbosity: 0
+        }).promise;
         
         // Extract text from all pages
         let fullText = '';
