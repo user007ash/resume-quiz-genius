@@ -8,11 +8,23 @@ export interface GeneratedQuestion {
 
 export const generateQuestionsFromResume = async (resumeText: string): Promise<GeneratedQuestion[]> => {
   try {
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    
+    if (!apiKey) {
+      console.error('OpenAI API key is not set');
+      return [
+        { question: "What motivated you to apply for this position?", type: 'hr' },
+        { question: "Tell me about your professional background.", type: 'hr' },
+        { question: "What are your key technical skills?", type: 'technical' },
+        { question: "Describe a challenging project you've worked on.", type: 'technical' }
+      ];
+    }
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
@@ -28,6 +40,10 @@ export const generateQuestionsFromResume = async (resumeText: string): Promise<G
         ]
       })
     });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.statusText}`);
+    }
 
     const data = await response.json();
     const rawQuestions = data.choices[0].message.content;
@@ -48,6 +64,12 @@ export const generateQuestionsFromResume = async (resumeText: string): Promise<G
     return questions;
   } catch (error) {
     console.error('Error generating questions:', error);
-    return [];
+    // Return default questions if API call fails
+    return [
+      { question: "What motivated you to apply for this position?", type: 'hr' },
+      { question: "Tell me about your professional background.", type: 'hr' },
+      { question: "What are your key technical skills?", type: 'technical' },
+      { question: "Describe a challenging project you've worked on.", type: 'technical' }
+    ];
   }
 };
