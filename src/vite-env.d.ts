@@ -7,7 +7,7 @@ interface SpeechRecognitionErrorEvent extends Event {
 
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
-  resultIndex: number;  // Added this property
+  resultIndex: number;
 }
 
 interface SpeechRecognition extends EventTarget {
@@ -16,6 +16,7 @@ interface SpeechRecognition extends EventTarget {
   lang: string;
   onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
   onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any) | null;
+  onend: ((this: SpeechRecognition, ev: Event) => any) | null;
   start(): void;
   stop(): void;
 }
