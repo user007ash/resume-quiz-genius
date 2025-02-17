@@ -19,6 +19,7 @@ const Index = () => {
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [currentQuestionType, setCurrentQuestionType] = useState<'hr' | 'technical'>('hr');
   const [allQuestions, setAllQuestions] = useState<InterviewQuestion[]>([]);
+  const [activeSection, setActiveSection] = useState('home');
   const [analysisResult, setAnalysisResult] = useState<{
     hrScore: number;
     technicalScore: number;
@@ -92,22 +93,58 @@ const Index = () => {
     setAllQuestions([]);
   };
 
+  const handleNavigation = (section: string) => {
+    if (section === 'home') {
+      setStep(0);
+      setActiveSection('home');
+    } else {
+      setActiveSection(section);
+      toast({
+        title: "Coming Soon",
+        description: `The ${section} section is under development.`,
+        variant: "default",
+      });
+    }
+  };
+
   if (step === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50">
         <nav className="container mx-auto px-6 py-6 flex justify-between items-center">
-          <div className="flex items-center gap-2">
+          <div 
+            className="flex items-center gap-2 cursor-pointer" 
+            onClick={() => handleNavigation('home')}
+          >
             <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500"></div>
             <span className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Resume Genius
             </span>
           </div>
           <div className="flex items-center gap-6">
-            <Button variant="ghost">Features</Button>
-            <Button variant="ghost">Pricing</Button>
-            <Button variant="ghost">About</Button>
-            <Button variant="outline">Sign in</Button>
-            <Button onClick={() => setStep(1)} className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
+            <Button 
+              variant="ghost" 
+              onClick={() => handleNavigation('features')}
+              className={activeSection === 'features' ? 'bg-gray-100' : ''}
+            >
+              Features
+            </Button>
+            <Button 
+              variant="ghost" 
+              onClick={() => handleNavigation('about')}
+              className={activeSection === 'about' ? 'bg-gray-100' : ''}
+            >
+              About
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => handleNavigation('signin')}
+            >
+              Sign in
+            </Button>
+            <Button 
+              onClick={() => setStep(1)} 
+              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+            >
               Get Started
             </Button>
           </div>
@@ -171,7 +208,10 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 py-12">
       <div className="container max-w-3xl mx-auto px-4">
-        <div className="text-center mb-12">
+        <div 
+          className="text-center mb-12 cursor-pointer" 
+          onClick={() => handleNavigation('home')}
+        >
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Resume Genius
           </h1>
