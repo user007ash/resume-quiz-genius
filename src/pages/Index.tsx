@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { FileUpload } from '@/components/FileUpload';
 import { ATSScore } from '@/components/ATSScore';
@@ -9,10 +8,11 @@ import { interviewQuestions } from '@/data/questions';
 import { generateQuestionsFromResume } from '@/utils/resumeQuestionGenerator';
 import { analyzeAnswers } from '@/utils/interviewAnalysis';
 import { useToast } from '@/components/ui/use-toast';
+import { Check, ArrowRight } from 'lucide-react';
 import type { Answer, AnswerAnalysis, InterviewQuestion } from '@/types/interview';
 
 const Index = () => {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [file, setFile] = useState<File | null>(null);
   const [atsScore, setAtsScore] = useState<number | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -92,11 +92,89 @@ const Index = () => {
     setAllQuestions([]);
   };
 
+  if (step === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50">
+        <nav className="container mx-auto px-6 py-6 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500"></div>
+            <span className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Resume Genius
+            </span>
+          </div>
+          <div className="flex items-center gap-6">
+            <Button variant="ghost">Features</Button>
+            <Button variant="ghost">Pricing</Button>
+            <Button variant="ghost">About</Button>
+            <Button variant="outline">Sign in</Button>
+            <Button onClick={() => setStep(1)} className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
+              Get Started
+            </Button>
+          </div>
+        </nav>
+
+        <div className="container mx-auto px-6 pt-20 pb-32">
+          <div className="max-w-4xl mx-auto text-center space-y-8">
+            <h1 className="text-6xl font-bold leading-tight bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Master Your Interview Skills with AI
+            </h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Practice interviews, get instant feedback, and improve your chances of landing your dream job with our AI-powered interview preparation platform.
+            </p>
+            <div className="flex justify-center gap-4 pt-6">
+              <Button 
+                size="lg" 
+                onClick={() => setStep(1)}
+                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-lg px-8 py-6 h-auto"
+              >
+                Start Practice Interview
+                <ArrowRight className="ml-2" />
+              </Button>
+            </div>
+            <div className="flex justify-center gap-8 pt-8 text-gray-600">
+              <div className="flex items-center gap-2">
+                <Check className="w-5 h-5 text-purple-500" />
+                <span>AI-Powered Analysis</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="w-5 h-5 text-purple-500" />
+                <span>Instant Feedback</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="w-5 h-5 text-purple-500" />
+                <span>Resume Scoring</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="container mx-auto px-6 pb-32">
+          <div className="grid grid-cols-3 gap-8">
+            <div className="group p-8 rounded-3xl bg-gradient-to-br from-blue-500 to-blue-600 text-white transform transition-all hover:scale-105 hover:rotate-1">
+              <h3 className="text-2xl font-bold mb-4">Smart Analysis</h3>
+              <p>Get instant feedback on your interview performance with our AI-powered analysis system.</p>
+            </div>
+            <div className="group p-8 rounded-3xl bg-gradient-to-br from-purple-500 to-purple-600 text-white transform transition-all hover:scale-105 hover:rotate-1">
+              <h3 className="text-2xl font-bold mb-4">Resume Scoring</h3>
+              <p>Upload your resume and get detailed feedback on how to improve it for better results.</p>
+            </div>
+            <div className="group p-8 rounded-3xl bg-gradient-to-br from-pink-500 to-pink-600 text-white transform transition-all hover:scale-105 hover:rotate-1">
+              <h3 className="text-2xl font-bold mb-4">Practice Questions</h3>
+              <p>Access a vast library of common interview questions tailored to your industry.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 py-12">
       <div className="container max-w-3xl mx-auto px-4">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Resume Genius</h1>
+          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Resume Genius
+          </h1>
           <p className="text-gray-600">Your AI-powered interview preparation assistant</p>
         </div>
 
@@ -111,7 +189,12 @@ const Index = () => {
             <div className="space-y-6">
               <ATSScore score={atsScore} />
               <div className="flex justify-center">
-                <Button onClick={() => setStep(3)}>Start Interview Prep</Button>
+                <Button 
+                  onClick={() => setStep(3)}
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                >
+                  Start Interview Prep
+                </Button>
               </div>
             </div>
           )}
