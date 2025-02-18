@@ -26,14 +26,14 @@ const NotFound = () => {
         </div>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button
-            as={Link}
-            to="/"
-            className="bg-gradient-to-r from-[#4f46e5] to-[#7c3aed] hover:from-[#4338ca] hover:to-[#6d28d9]"
-          >
-            <Home className="mr-2 h-4 w-4" />
-            Back to Home
-          </Button>
+          <Link to="/">
+            <Button
+              className="bg-gradient-to-r from-[#4f46e5] to-[#7c3aed] hover:from-[#4338ca] hover:to-[#6d28d9]"
+            >
+              <Home className="mr-2 h-4 w-4" />
+              Back to Home
+            </Button>
+          </Link>
           <Button
             variant="outline"
             onClick={() => window.history.back()}

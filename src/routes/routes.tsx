@@ -32,12 +32,73 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Landing page wrapper with required props
+const LandingPageWrapper = () => {
+  const { toast } = useToast();
+  const [activeSection, setActiveSection] = useState('home');
+
+  const handleNavigation = (section: string) => {
+    if (section === 'dashboard') {
+      toast({
+        title: "Coming Soon",
+        description: "The dashboard feature will be available soon!",
+        variant: "default",
+      });
+    }
+    setActiveSection(section);
+  };
+
+  return (
+    <LandingPage
+      activeSection={activeSection}
+      onNavigate={handleNavigation}
+      onGetStarted={() => handleNavigation('resume-analysis')}
+    />
+  );
+};
+
+// Interview process wrapper with required props
+const InterviewProcessWrapper = () => {
+  const initialState = {
+    step: 1,
+    atsScore: null,
+    currentQuestionIndex: 0,
+    allQuestions: [],
+    analysisResult: {
+      hrScore: 0,
+      technicalScore: 0,
+      feedback: []
+    }
+  };
+
+  const handleFileUpload = (file: File, resumeText: string) => {
+    console.log('File uploaded:', file, resumeText);
+    // Implement file upload logic
+  };
+
+  const handleAnswer = (answer: any) => {
+    console.log('Answer submitted:', answer);
+    // Implement answer handling logic
+  };
+
+  return (
+    <InterviewProcess
+      {...initialState}
+      onFileUpload={handleFileUpload}
+      onAnswer={handleAnswer}
+      onNextStep={() => console.log('Next step')}
+      onRestart={() => console.log('Restart')}
+      onHome={() => console.log('Home')}
+    />
+  );
+};
+
 export const routes = [
   {
     path: "/",
     element: (
       <Suspense fallback={<LoadingSpinner />}>
-        <LandingPage />
+        <LandingPageWrapper />
       </Suspense>
     ),
   },
@@ -45,7 +106,7 @@ export const routes = [
     path: "/resume-analysis",
     element: (
       <Suspense fallback={<LoadingSpinner />}>
-        <InterviewProcess />
+        <InterviewProcessWrapper />
       </Suspense>
     ),
   },
@@ -54,7 +115,7 @@ export const routes = [
     element: (
       <Suspense fallback={<LoadingSpinner />}>
         <ProtectedRoute>
-          <InterviewProcess />
+          <InterviewProcessWrapper />
         </ProtectedRoute>
       </Suspense>
     ),
