@@ -10,6 +10,7 @@ export const AppNavbar = () => {
   const { toast } = useToast();
 
   const isActive = (path: string) => location.pathname === path;
+  const isResumeAnalysis = location.pathname === '/resume-analysis';
 
   const handleNavigation = (path: string) => {
     if (path === '/online-test' || path === '/video-analysis') {
@@ -49,22 +50,26 @@ export const AppNavbar = () => {
             <Upload className="h-4 w-4" />
             Upload Resume
           </Button>
-          <Button
-            variant={isActive('/interview') ? "secondary" : "ghost"}
-            onClick={() => handleNavigation('/interview')}
-            className="flex items-center gap-2"
-          >
-            <Mic className="h-4 w-4" />
-            AI Interview
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={() => handleNavigation('/online-test')}
-            className="flex items-center gap-2"
-          >
-            <ClipboardList className="h-4 w-4" />
-            Online Test
-          </Button>
+          {!isResumeAnalysis && (
+            <>
+              <Button
+                variant={isActive('/interview') ? "secondary" : "ghost"}
+                onClick={() => handleNavigation('/interview')}
+                className="flex items-center gap-2"
+              >
+                <Mic className="h-4 w-4" />
+                AI Interview
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => handleNavigation('/online-test')}
+                className="flex items-center gap-2"
+              >
+                <ClipboardList className="h-4 w-4" />
+                Online Test
+              </Button>
+            </>
+          )}
           <Button
             variant={isActive('/results') ? "secondary" : "ghost"}
             onClick={() => handleNavigation('/results')}
