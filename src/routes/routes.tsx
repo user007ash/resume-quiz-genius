@@ -1,6 +1,7 @@
+
 import { lazy, Suspense, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 // Lazy load components
 const LandingPage = lazy(() => import('@/components/landing/LandingPage').then(module => ({ default: module.LandingPage })));
@@ -68,6 +69,7 @@ const LandingPageWrapper = () => {
 
 // Interview process wrapper with required props
 const InterviewProcessWrapper = () => {
+  const navigate = useNavigate();
   const initialState = {
     step: 1,
     atsScore: null,
@@ -96,8 +98,12 @@ const InterviewProcessWrapper = () => {
       onFileUpload={handleFileUpload}
       onAnswer={handleAnswer}
       onNextStep={() => console.log('Next step')}
-      onRestart={() => console.log('Restart')}
-      onHome={() => console.log('Home')}
+      onRestart={() => {
+        navigate('/resume-analysis');
+      }}
+      onHome={() => {
+        navigate('/');
+      }}
     />
   );
 };
