@@ -1,6 +1,5 @@
-
 import { lazy, Suspense, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 
 // Lazy load components
@@ -35,6 +34,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 // Landing page wrapper with required props
 const LandingPageWrapper = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('home');
 
   const handleNavigation = (section: string) => {
@@ -42,6 +42,12 @@ const LandingPageWrapper = () => {
       toast({
         title: "Coming Soon",
         description: "The dashboard feature will be available soon!",
+        variant: "default",
+      });
+    } else if (section === 'about') {
+      toast({
+        title: "Coming Soon",
+        description: "The about section will be available soon!",
         variant: "default",
       });
     }
@@ -52,7 +58,10 @@ const LandingPageWrapper = () => {
     <LandingPage
       activeSection={activeSection}
       onNavigate={handleNavigation}
-      onGetStarted={() => handleNavigation('resume-analysis')}
+      onGetStarted={() => {
+        setActiveSection('resume-analysis');
+        navigate('/resume-analysis');
+      }}
     />
   );
 };
