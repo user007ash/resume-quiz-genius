@@ -43,6 +43,15 @@ export const InterviewProcess = ({
   const { toast } = useToast();
 
   const handleTakeTest = () => {
+    if (typeof atsScore !== 'number') {
+      toast({
+        title: "Error",
+        description: "Please upload your resume first",
+        variant: "destructive",
+      });
+      return;
+    }
+
     toast({
       title: "Starting Technical Assessment",
       description: "Preparing your personalized assessment based on your resume...",
@@ -51,7 +60,8 @@ export const InterviewProcess = ({
     navigate('/online-test');
   };
 
-  const isValidATSScore = atsScore !== null && atsScore >= 40; // Only show test button if ATS score is 40 or above
+  // Show test button if ATS score exists (remove minimum score requirement)
+  const showTestButton = atsScore !== null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] to-[#eef2ff]">
@@ -68,7 +78,7 @@ export const InterviewProcess = ({
             <div className="space-y-6">
               <ATSScore score={atsScore} />
               <div className="flex flex-col sm:flex-row justify-center gap-4">
-                {isValidATSScore && (
+                {showTestButton && (
                   <Button 
                     onClick={handleTakeTest}
                     className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg"
