@@ -6,7 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 const LandingPage = lazy(() => import('@/components/landing/LandingPage').then(module => ({ default: module.LandingPage })));
 const InterviewProcess = lazy(() => import('@/components/interview/InterviewProcess').then(module => ({ default: module.InterviewProcess })));
 const NotFound = lazy(() => import('@/pages/NotFound'));
-const OnlineTest = lazy(() => import('@/components/online-test/OnlineTest'));
+const OnlineTest = lazy(() => import('@/pages/OnlineTest').then(module => ({ default: module.OnlineTest })));
 
 // Loading component for suspense fallback
 const LoadingSpinner = () => (
