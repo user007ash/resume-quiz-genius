@@ -1,4 +1,3 @@
-
 import { lazy, Suspense, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -7,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 const LandingPage = lazy(() => import('@/components/landing/LandingPage').then(module => ({ default: module.LandingPage })));
 const InterviewProcess = lazy(() => import('@/components/interview/InterviewProcess').then(module => ({ default: module.InterviewProcess })));
 const NotFound = lazy(() => import('@/pages/NotFound'));
+const OnlineTest = lazy(() => import('@/components/online-test/OnlineTest'));
 
 // Loading component for suspense fallback
 const LoadingSpinner = () => (
@@ -126,12 +126,10 @@ export const routes = [
     ),
   },
   {
-    path: "/interview/:sessionId",
+    path: "/online-test",
     element: (
       <Suspense fallback={<LoadingSpinner />}>
-        <ProtectedRoute>
-          <InterviewProcessWrapper />
-        </ProtectedRoute>
+        <OnlineTest />
       </Suspense>
     ),
   },
