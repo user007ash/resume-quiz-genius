@@ -44,8 +44,8 @@ export const InterviewProcess = ({
 
   const handleTakeTest = () => {
     toast({
-      title: "Starting Online Test",
-      description: "Preparing your personalized assessment...",
+      title: "Starting Technical Assessment",
+      description: "Preparing your personalized assessment based on your resume...",
       duration: 3000,
     });
     navigate('/online-test');
@@ -73,7 +73,7 @@ export const InterviewProcess = ({
                     onClick={handleTakeTest}
                     className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg"
                   >
-                    Take Online Test
+                    Take Technical Assessment
                     <ClipboardList className="ml-2 w-5 h-5" />
                   </Button>
                 )}

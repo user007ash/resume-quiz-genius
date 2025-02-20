@@ -12,7 +12,7 @@ interface TestQuestionProps {
 }
 
 export const TestQuestion = ({ question, options, onAnswer, onTimeout }: TestQuestionProps) => {
-  const [timeLeft, setTimeLeft] = useState(30);
+  const [timeLeft, setTimeLeft] = useState(60); // Changed to 60 seconds
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export const TestQuestion = ({ question, options, onAnswer, onTimeout }: TestQue
           <span className="text-sm font-medium text-gray-500">Time Remaining</span>
           <span className="text-sm font-bold text-primary">{timeLeft}s</span>
         </div>
-        <Progress value={(timeLeft / 30) * 100} />
+        <Progress value={(timeLeft / 60) * 100} /> {/* Updated for 60 seconds */}
       </div>
       
       <h3 className="text-lg font-medium">{question}</h3>
