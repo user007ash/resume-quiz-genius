@@ -74,6 +74,13 @@ export const InterviewProcess = ({
     navigate('/online-test');
   };
 
+  // Debug logging outside of JSX
+  useEffect(() => {
+    if (step === 2) {
+      console.log('Rendering step 2, ATS Score:', atsScore, 'Show button:', showTestButton);
+    }
+  }, [step, atsScore, showTestButton]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] to-[#eef2ff]">
       <AppNavbar />
@@ -89,8 +96,6 @@ export const InterviewProcess = ({
             <div className="space-y-6">
               <ATSScore score={atsScore} />
               <div className="flex flex-col sm:flex-row justify-center gap-4">
-                {/* Add debug output */}
-                {console.log('Rendering step 2, ATS Score:', atsScore, 'Show button:', showTestButton)}
                 {showTestButton && (
                   <Button 
                     onClick={handleTakeTest}
