@@ -9,6 +9,7 @@ import { AppNavbar } from '@/components/layout/AppNavbar';
 import type { Answer, AnswerAnalysis, InterviewQuestion } from '@/types/interview';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useEffect, useState } from 'react';
 
 interface InterviewProcessProps {
   step: number;
@@ -41,12 +42,25 @@ export const InterviewProcess = ({
 }: InterviewProcessProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [showTestButton, setShowTestButton] = useState(false);
+
+  // Effect to handle ATS score changes
+  useEffect(() => {
+    // Update button visibility when ATS score changes
+    if (typeof atsScore === 'number' && atsScore >= 40) {
+      setShowTestButton(true);
+      console.log('ATS Score updated:', atsScore, 'Button should be visible');
+    } else {
+      setShowTestButton(false);
+      console.log('ATS Score not sufficient:', atsScore);
+    }
+  }, [atsScore]);
 
   const handleTakeTest = () => {
-    if (typeof atsScore !== 'number') {
+    if (typeof atsScore !== 'number' || atsScore < 40) {
       toast({
-        title: "Error",
-        description: "Please upload your resume first",
+        title: "Minimum Score Required",
+        description: "Please achieve an ATS score of 40 or higher to take the technical assessment.",
         variant: "destructive",
       });
       return;
@@ -59,9 +73,6 @@ export const InterviewProcess = ({
     });
     navigate('/online-test');
   };
-
-  // Show test button if ATS score exists (remove minimum score requirement)
-  const showTestButton = atsScore !== null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] to-[#eef2ff]">
@@ -78,6 +89,8 @@ export const InterviewProcess = ({
             <div className="space-y-6">
               <ATSScore score={atsScore} />
               <div className="flex flex-col sm:flex-row justify-center gap-4">
+                {/* Add debug output */}
+                {console.log('Rendering step 2, ATS Score:', atsScore, 'Show button:', showTestButton)}
                 {showTestButton && (
                   <Button 
                     onClick={handleTakeTest}
