@@ -1,13 +1,31 @@
 
 import { Button } from '@/components/ui/button';
-import { Upload, ArrowRight } from 'lucide-react';
+import { Upload, ArrowRight, ClipboardList } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 interface HeroProps {
   onGetStarted: () => void;
   onLearnMore: () => void;
+  atsScore?: number | null;
 }
 
-export const Hero = ({ onGetStarted, onLearnMore }: HeroProps) => {
+export const Hero = ({ onGetStarted, onLearnMore, atsScore }: HeroProps) => {
+  const navigate = useNavigate();
+  const [showHighlight, setShowHighlight] = useState(false);
+
+  useEffect(() => {
+    if (atsScore !== null && atsScore >= 40) {
+      setShowHighlight(true);
+    } else {
+      setShowHighlight(false);
+    }
+  }, [atsScore]);
+
+  const handleTakeTest = () => {
+    navigate('/online-test');
+  };
+
   return (
     <div className="container mx-auto px-6 pt-32 pb-20">
       <div className="max-w-4xl mx-auto text-center space-y-8">
@@ -25,6 +43,19 @@ export const Hero = ({ onGetStarted, onLearnMore }: HeroProps) => {
           >
             Upload Resume
             <Upload className="ml-2 w-5 h-5" />
+          </Button>
+          <Button 
+            size="lg" 
+            onClick={handleTakeTest}
+            className={`${
+              showHighlight 
+                ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 animate-pulse' 
+                : 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700'
+            } text-white shadow-lg shadow-green-500/20 text-lg px-8 py-6 h-auto transition-all duration-300`}
+            disabled={!showHighlight}
+          >
+            Take Test
+            <ClipboardList className="ml-2 w-5 h-5" />
           </Button>
           <Button 
             size="lg" 
