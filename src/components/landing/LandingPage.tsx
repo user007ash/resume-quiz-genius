@@ -8,10 +8,9 @@ interface LandingPageProps {
   activeSection: string;
   onNavigate: (section: string) => void;
   onGetStarted: () => void;
-  atsScore?: number | null;
 }
 
-export const LandingPage = ({ activeSection, onNavigate, onGetStarted, atsScore }: LandingPageProps) => {
+export const LandingPage = ({ activeSection, onNavigate, onGetStarted }: LandingPageProps) => {
   const navigate = useNavigate();
 
   const handleGetStarted = () => {
@@ -37,7 +36,6 @@ export const LandingPage = ({ activeSection, onNavigate, onGetStarted, atsScore 
       <Hero 
         onGetStarted={handleGetStarted}
         onLearnMore={handleLearnMore}
-        atsScore={atsScore}
       />
       <Features />
     </div>
