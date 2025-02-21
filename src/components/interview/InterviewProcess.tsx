@@ -44,7 +44,6 @@ export const InterviewProcess = ({
   const { toast } = useToast();
   const [testButtonVisible, setTestButtonVisible] = useState(false);
 
-  // Debug logging
   useEffect(() => {
     console.log('Current step:', step);
     console.log('ATS Score:', atsScore);
@@ -74,7 +73,6 @@ export const InterviewProcess = ({
       return;
     }
     
-    // Store current ATS score in session storage to maintain state
     sessionStorage.setItem('atsScore', String(atsScore));
     navigate('/online-test');
   };
@@ -82,6 +80,22 @@ export const InterviewProcess = ({
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] to-[#eef2ff]">
       <AppNavbar />
+      {testButtonVisible && (
+        <div className="w-full bg-green-50 border-b border-green-100 py-4">
+          <div className="container max-w-3xl mx-auto px-4">
+            <Button 
+              onClick={handleTakeTest}
+              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 
+                       hover:to-green-700 text-white shadow-lg animate-pulse transform 
+                       hover:scale-105 transition-all duration-300 ring-2 ring-green-400 
+                       ring-offset-2 text-lg py-6"
+            >
+              Take Technical Assessment
+              <ClipboardList className="ml-2 w-5 h-5" />
+            </Button>
+          </div>
+        </div>
+      )}
       <div className="container max-w-3xl mx-auto px-4 py-8">
         <div className="space-y-8">
           {step === 1 && (
@@ -94,18 +108,6 @@ export const InterviewProcess = ({
             <div className="space-y-6">
               <ATSScore score={atsScore} />
               <div className="flex flex-col items-center justify-center gap-4">
-                {testButtonVisible && (
-                  <Button 
-                    onClick={handleTakeTest}
-                    className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 
-                             hover:to-green-700 text-white shadow-lg animate-pulse transform 
-                             hover:scale-105 transition-all duration-300 ring-2 ring-green-400 
-                             ring-offset-2 w-full sm:w-auto text-lg py-6 px-8"
-                  >
-                    Take Technical Assessment
-                    <ClipboardList className="ml-2 w-5 h-5" />
-                  </Button>
-                )}
                 <div className="flex flex-col sm:flex-row gap-4 w-full">
                   <Button 
                     onClick={onNextStep}
