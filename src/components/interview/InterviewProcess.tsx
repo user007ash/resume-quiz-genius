@@ -42,22 +42,23 @@ export const InterviewProcess = ({
 }: InterviewProcessProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [showTestButton, setShowTestButton] = useState(false);
+  const [testButtonVisible, setTestButtonVisible] = useState(false);
 
-  // Effect to handle ATS score changes
   useEffect(() => {
-    // Update button visibility when ATS score changes
     if (typeof atsScore === 'number' && atsScore >= 40) {
-      setShowTestButton(true);
-      console.log('ATS Score updated:', atsScore, 'Button should be visible');
+      setTestButtonVisible(true);
+      toast({
+        title: "Technical Assessment Available!",
+        description: "Your resume scored well! You can now take the technical assessment.",
+        duration: 5000,
+      });
     } else {
-      setShowTestButton(false);
-      console.log('ATS Score not sufficient:', atsScore);
+      setTestButtonVisible(false);
     }
-  }, [atsScore]);
+  }, [atsScore, toast]);
 
   const handleTakeTest = () => {
-    if (typeof atsScore !== 'number' || atsScore < 40) {
+    if (!testButtonVisible) {
       toast({
         title: "Minimum Score Required",
         description: "Please achieve an ATS score of 40 or higher to take the technical assessment.",
@@ -66,20 +67,13 @@ export const InterviewProcess = ({
       return;
     }
 
-    toast({
-      title: "Starting Technical Assessment",
-      description: "Preparing your personalized assessment based on your resume...",
-      duration: 3000,
-    });
     navigate('/online-test');
   };
 
-  // Debug logging outside of JSX
+  // Debug logging
   useEffect(() => {
-    if (step === 2) {
-      console.log('Rendering step 2, ATS Score:', atsScore, 'Show button:', showTestButton);
-    }
-  }, [step, atsScore, showTestButton]);
+    console.log('Step:', step, 'ATS Score:', atsScore, 'Test button visible:', testButtonVisible);
+  }, [step, atsScore, testButtonVisible]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] to-[#eef2ff]">
@@ -96,10 +90,10 @@ export const InterviewProcess = ({
             <div className="space-y-6">
               <ATSScore score={atsScore} />
               <div className="flex flex-col sm:flex-row justify-center gap-4">
-                {showTestButton && (
+                {testButtonVisible && (
                   <Button 
                     onClick={handleTakeTest}
-                    className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg"
+                    className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg animate-pulse transform hover:scale-105 transition-all duration-300 ring-2 ring-green-400 ring-offset-2"
                   >
                     Take Technical Assessment
                     <ClipboardList className="ml-2 w-5 h-5" />
