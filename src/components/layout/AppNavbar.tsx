@@ -53,14 +53,24 @@ export const AppNavbar = () => {
               AI Interview
             </Button>
           )}
-          <Button
-            variant={isActive('/online-test') ? "secondary" : "default"}
-            onClick={() => handleNavigation('/online-test')}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
-          >
-            <ClipboardList className="h-4 w-4" />
-            Take Test
-          </Button>
+          <div className="space-x-2">
+            <Button
+              variant={isActive('/online-test') ? "secondary" : "default"}
+              onClick={() => handleNavigation('/online-test')}
+              className="flex items-center gap-2"
+            >
+              <ClipboardList className="h-4 w-4" />
+              Written Test
+            </Button>
+            <Button
+              variant={isActive('/voice-test') ? "secondary" : "default"}
+              onClick={() => handleNavigation('/voice-test')}
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+            >
+              <Mic className="h-4 w-4" />
+              Voice Test
+            </Button>
+          </div>
           <Button
             variant={isActive('/results') ? "secondary" : "ghost"}
             onClick={() => handleNavigation('/results')}
