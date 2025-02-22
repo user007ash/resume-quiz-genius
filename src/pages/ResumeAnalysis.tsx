@@ -8,7 +8,7 @@ import { interviewQuestions } from '@/data/questions';
 import type { Answer, AnswerAnalysis, InterviewQuestion, QuestionType } from '@/types/interview';
 
 export default function ResumeAnalysis() {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(1);
   const [file, setFile] = useState<File | null>(null);
   const [atsScore, setAtsScore] = useState<number | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -93,20 +93,22 @@ export default function ResumeAnalysis() {
   };
 
   return (
-    <InterviewProcess
-      step={step}
-      atsScore={atsScore}
-      currentQuestionIndex={currentQuestionIndex}
-      allQuestions={allQuestions}
-      analysisResult={analysisResult}
-      onFileUpload={handleFileUpload}
-      onAnswer={handleAnswer}
-      onNextStep={() => setStep(step + 1)}
-      onRestart={handleRestart}
-      onHome={() => setStep(0)}
-      onComplete={handleComplete}
-      currentType={currentType}
-      setCurrentType={setCurrentType}
-    />
+    <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] to-[#eef2ff] py-8">
+      <InterviewProcess
+        step={step}
+        atsScore={atsScore}
+        currentQuestionIndex={currentQuestionIndex}
+        allQuestions={allQuestions}
+        analysisResult={analysisResult}
+        onFileUpload={handleFileUpload}
+        onAnswer={handleAnswer}
+        onNextStep={() => setStep(step + 1)}
+        onRestart={handleRestart}
+        onHome={() => setStep(0)}
+        onComplete={handleComplete}
+        currentType={currentType}
+        setCurrentType={setCurrentType}
+      />
+    </div>
   );
 }
