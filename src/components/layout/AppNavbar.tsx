@@ -2,16 +2,23 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Home, Upload, Mic, ClipboardList, BarChart } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export const AppNavbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
 
   const isActive = (path: string) => location.pathname === path;
   const isResumeAnalysis = location.pathname === '/resume-analysis';
 
   const handleNavigation = (path: string) => {
-    if (path === '/video-analysis') {
+    if (path === '/online-test' || path === '/video-analysis') {
+      toast({
+        title: "Coming Soon",
+        description: "This feature will be available soon!",
+        variant: "default",
+      });
       return;
     }
     navigate(path);
@@ -44,23 +51,25 @@ export const AppNavbar = () => {
             Upload Resume
           </Button>
           {!isResumeAnalysis && (
-            <Button
-              variant={isActive('/interview') ? "secondary" : "ghost"}
-              onClick={() => handleNavigation('/interview')}
-              className="flex items-center gap-2"
-            >
-              <Mic className="h-4 w-4" />
-              AI Interview
-            </Button>
+            <>
+              <Button
+                variant={isActive('/interview') ? "secondary" : "ghost"}
+                onClick={() => handleNavigation('/interview')}
+                className="flex items-center gap-2"
+              >
+                <Mic className="h-4 w-4" />
+                AI Interview
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => handleNavigation('/online-test')}
+                className="flex items-center gap-2"
+              >
+                <ClipboardList className="h-4 w-4" />
+                Online Test
+              </Button>
+            </>
           )}
-          <Button
-            variant={isActive('/online-test') ? "secondary" : "default"}
-            onClick={() => handleNavigation('/online-test')}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
-          >
-            <ClipboardList className="h-4 w-4" />
-            Take Test
-          </Button>
           <Button
             variant={isActive('/results') ? "secondary" : "ghost"}
             onClick={() => handleNavigation('/results')}
