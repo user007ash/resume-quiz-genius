@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { router } from "./routes/routes";
+import { routes } from "./routes/routes";
 import { AnimatePresence, motion } from "framer-motion";
 
 const queryClient = new QueryClient();
@@ -36,7 +36,7 @@ const App = () => (
       <BrowserRouter>
         <PageWrapper>
           <Routes>
-            {router.map((route, index) => (
+            {routes.map((route, index) => (
               <Route
                 key={index}
                 path={route.path}
