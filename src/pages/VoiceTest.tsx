@@ -1,9 +1,10 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { QuestionCard } from '@/components/QuestionCard';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { SkipForward, ArrowRight } from 'lucide-react';
+import type { QuestionType, AnswerAnalysis } from '@/types/interview';
 
 // Questions for each category
 const questions = {
@@ -24,31 +25,18 @@ const questions = {
   ]
 };
 
-type TestCategory = 'technical' | 'hr' | 'behavioral';
-
 export const VoiceTest = () => {
-  const [category, setCategory] = useState<TestCategory>('technical');
+  const [category, setCategory] = useState<QuestionType>('technical');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Array<{
-    text: string;
-    hesitations: number;
-    duration: number;
-    confidence: number;
-  }>>([]);
+  const [answers, setAnswers] = useState<AnswerAnalysis[]>([]);
   const { toast } = useToast();
 
   const currentQuestions = questions[category];
   const isLastQuestion = currentQuestionIndex === currentQuestions.length - 1;
   const isLastCategory = category === 'behavioral';
 
-  const handleAnswer = (answer: {
-    text: string;
-    hesitations: number;
-    duration: number;
-    confidence: number;
-  }) => {
+  const handleAnswer = (answer: AnswerAnalysis) => {
     setAnswers([...answers, answer]);
-    // Don't auto-advance to give user control
     toast({
       title: "Answer Recorded",
       description: "Use the navigation buttons to continue.",
@@ -68,15 +56,12 @@ export const VoiceTest = () => {
   const handleNext = () => {
     if (isLastQuestion) {
       if (isLastCategory) {
-        // Test complete
         toast({
           title: "Test Complete!",
           description: "Your responses have been recorded.",
         });
-        // Here you would typically navigate to a results page
         return;
       }
-      // Move to next category
       setCurrentQuestionIndex(0);
       setCategory(prev => {
         if (prev === 'technical') return 'hr';
@@ -84,7 +69,6 @@ export const VoiceTest = () => {
         return prev;
       });
     } else {
-      // Move to next question in current category
       setCurrentQuestionIndex(prev => prev + 1);
     }
   };
