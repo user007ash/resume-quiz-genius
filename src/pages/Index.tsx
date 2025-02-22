@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { LandingPage } from '@/components/landing/LandingPage';
@@ -7,7 +8,7 @@ import { analyzeAnswers } from '@/utils/interviewAnalysis';
 import { interviewQuestions } from '@/data/questions';
 import type { Answer, AnswerAnalysis, InterviewQuestion, QuestionType } from '@/types/interview';
 
-const Index = () => {
+export default function Index() {
   const [step, setStep] = useState(0);
   const [file, setFile] = useState<File | null>(null);
   const [atsScore, setAtsScore] = useState<number | null>(null);
@@ -110,10 +111,6 @@ const Index = () => {
     }
   };
 
-  const handleTypeChange = (type: QuestionType) => {
-    setCurrentType(type);
-  };
-
   if (step === 0) {
     return (
       <LandingPage
@@ -133,11 +130,12 @@ const Index = () => {
       analysisResult={analysisResult}
       onFileUpload={handleFileUpload}
       onAnswer={handleAnswer}
-      onNextStep={() => setStep(3)}
+      onNextStep={() => setStep(step + 1)}
       onRestart={handleRestart}
       onHome={() => handleNavigation('home')}
+      onComplete={() => setStep(4)}
+      currentType={currentType}
+      setCurrentType={setCurrentType}
     />
   );
-};
-
-export default Index;
+}

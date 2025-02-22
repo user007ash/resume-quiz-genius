@@ -1,15 +1,40 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import type { QuestionType } from '@/types/interview';
+import type { QuestionType, InterviewQuestion, AnswerAnalysis } from '@/types/interview';
 
 interface InterviewProcessProps {
+  step: number;
+  atsScore: number | null;
+  currentQuestionIndex: number;
+  allQuestions: InterviewQuestion[];
+  analysisResult: {
+    hrScore: number;
+    technicalScore: number;
+    feedback: string[];
+  };
+  onFileUpload: (file: File, text: string) => void;
+  onAnswer: (analysis: AnswerAnalysis) => void;
+  onNextStep: () => void;
+  onRestart: () => void;
+  onHome: () => void;
   onComplete: () => void;
   currentType: QuestionType;
   setCurrentType: (type: QuestionType) => void;
 }
 
 export const InterviewProcess = ({
+  step,
+  atsScore,
+  currentQuestionIndex,
+  allQuestions,
+  analysisResult,
+  onFileUpload,
+  onAnswer,
+  onNextStep,
+  onRestart,
+  onHome,
   onComplete,
   currentType,
   setCurrentType,
