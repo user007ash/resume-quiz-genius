@@ -58,16 +58,11 @@ export const OnlineTest = () => {
         setCurrentQuestionIndex(prev => prev + 1);
       }, 1000);
     } else {
-      const score = newAnswers.reduce((acc, curr, idx) => {
-        return curr === testQuestions[idx].correctAnswer ? acc + 1 : acc;
-      }, 0);
-
+      setIsComplete(true);
       toast({
         title: "Test Completed!",
         description: "View your results and suggested improvements below.",
       });
-
-      setIsComplete(true);
     }
   };
 
@@ -97,16 +92,17 @@ export const OnlineTest = () => {
   };
 
   if (isComplete) {
+    // Only calculate score when test is complete
+    const score = answers.reduce((acc, curr, idx) => {
+      return curr === testQuestions[idx]?.correctAnswer ? acc + 1 : acc;
+    }, 0);
+
     const answersWithDetails = testQuestions.map((q, idx) => ({
       question: q.question,
       userAnswer: answers[idx] || "No answer provided",
       correctAnswer: q.correctAnswer,
       explanation: q.explanation
     }));
-
-    const score = answers.reduce((acc, curr, idx) => {
-      return curr === testQuestions[idx].correctAnswer ? acc + 1 : acc;
-    }, 0);
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] to-[#eef2ff] py-8">
