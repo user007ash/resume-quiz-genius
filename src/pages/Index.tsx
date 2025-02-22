@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { LandingPage } from '@/components/landing/LandingPage';
@@ -6,7 +5,7 @@ import { InterviewProcess } from '@/components/interview/InterviewProcess';
 import { generateQuestionsFromResume } from '@/utils/resumeQuestionGenerator';
 import { analyzeAnswers } from '@/utils/interviewAnalysis';
 import { interviewQuestions } from '@/data/questions';
-import type { Answer, AnswerAnalysis, InterviewQuestion } from '@/types/interview';
+import type { Answer, AnswerAnalysis, InterviewQuestion, QuestionType } from '@/types/interview';
 
 const Index = () => {
   const [step, setStep] = useState(0);
@@ -14,7 +13,7 @@ const Index = () => {
   const [atsScore, setAtsScore] = useState<number | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
-  const [currentQuestionType, setCurrentQuestionType] = useState<'hr' | 'technical'>('hr');
+  const [currentType, setCurrentType] = useState<QuestionType>('technical');
   const [allQuestions, setAllQuestions] = useState<InterviewQuestion[]>([]);
   const [activeSection, setActiveSection] = useState('home');
   const [analysisResult, setAnalysisResult] = useState<{
@@ -69,7 +68,7 @@ const Index = () => {
 
     if (currentQuestionIndex < allQuestions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setCurrentQuestionType(allQuestions[currentQuestionIndex + 1].type);
+      setCurrentType(allQuestions[currentQuestionIndex + 1].type);
     } else {
       const result = analyzeAnswers(newAnswers);
       setAnalysisResult({
@@ -109,6 +108,10 @@ const Index = () => {
         variant: "default",
       });
     }
+  };
+
+  const handleTypeChange = (type: QuestionType) => {
+    setCurrentType(type);
   };
 
   if (step === 0) {
