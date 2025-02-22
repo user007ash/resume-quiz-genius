@@ -65,7 +65,7 @@ export const Navbar = ({ activeSection, onNavigate, onGetStarted }: NavbarProps)
           Sign in
         </Button>
         <Button 
-          onClick={onGetStarted}
+          onClick={() => navigate('/resume-analysis')}
           className="bg-gradient-to-r from-[#4f46e5] to-[#7c3aed] hover:from-[#4338ca] hover:to-[#6d28d9] text-white shadow-lg shadow-indigo-500/20"
         >
           Get Started
