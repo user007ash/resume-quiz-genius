@@ -1,6 +1,6 @@
 
 import { Button } from '@/components/ui/button';
-import { Brain, Upload, Home, BarChart, ClipboardList } from 'lucide-react';
+import { Brain, Upload, Home } from 'lucide-react';
 import { FileUpload } from '@/components/FileUpload';
 import { ATSScore } from '@/components/ATSScore';
 import { QuestionCard } from '@/components/QuestionCard';
@@ -9,7 +9,6 @@ import { AppNavbar } from '@/components/layout/AppNavbar';
 import type { Answer, AnswerAnalysis, InterviewQuestion } from '@/types/interview';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { useEffect, useState } from 'react';
 
 interface InterviewProcessProps {
   step: number;
@@ -42,60 +41,10 @@ export const InterviewProcess = ({
 }: InterviewProcessProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [testButtonVisible, setTestButtonVisible] = useState(false);
-
-  useEffect(() => {
-    console.log('Current step:', step);
-    console.log('ATS Score:', atsScore);
-    console.log('Test button visible:', testButtonVisible);
-  }, [step, atsScore, testButtonVisible]);
-
-  useEffect(() => {
-    if (typeof atsScore === 'number' && atsScore >= 40) {
-      setTestButtonVisible(true);
-      toast({
-        title: "Technical Assessment Available!",
-        description: "Your resume scored well! You can now take the technical assessment.",
-        duration: 5000,
-      });
-    } else {
-      setTestButtonVisible(false);
-    }
-  }, [atsScore, toast]);
-
-  const handleTakeTest = () => {
-    if (!testButtonVisible) {
-      toast({
-        title: "Minimum Score Required",
-        description: "Please achieve an ATS score of 40 or higher to take the technical assessment.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    sessionStorage.setItem('atsScore', String(atsScore));
-    navigate('/online-test');
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] to-[#eef2ff]">
       <AppNavbar />
-      {testButtonVisible && (
-        <div className="w-full bg-green-50 border-b border-green-100 py-4">
-          <div className="container max-w-3xl mx-auto px-4">
-            <Button 
-              onClick={handleTakeTest}
-              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 
-                       hover:to-green-700 text-white shadow-lg animate-pulse transform 
-                       hover:scale-105 transition-all duration-300 ring-2 ring-green-400 
-                       ring-offset-2 text-lg py-6"
-            >
-              Take Technical Assessment
-              <ClipboardList className="ml-2 w-5 h-5" />
-            </Button>
-          </div>
-        </div>
-      )}
       <div className="container max-w-3xl mx-auto px-4 py-8">
         <div className="space-y-8">
           {step === 1 && (
