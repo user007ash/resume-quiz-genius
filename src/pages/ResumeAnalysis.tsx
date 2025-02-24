@@ -4,7 +4,6 @@ import { FileUpload } from '@/components/FileUpload';
 import { ATSScore } from '@/components/ATSScore';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
 import { PerformanceReview } from '@/components/PerformanceReview';
 
 export default function ResumeAnalysis() {
@@ -13,7 +12,7 @@ export default function ResumeAnalysis() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const { toast } = useToast();
 
-  const handleFileUpload = async (uploadedFile: File) => {
+  const handleFileUpload = async (uploadedFile: File, resumeText: string) => {
     setFile(uploadedFile);
     setIsAnalyzing(true);
 
@@ -38,6 +37,12 @@ export default function ResumeAnalysis() {
     }
   };
 
+  const handleRestart = () => {
+    setFile(null);
+    setScore(null);
+    setIsAnalyzing(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] to-[#eef2ff] py-8">
       <div className="container mx-auto px-4 max-w-4xl">
@@ -53,15 +58,23 @@ export default function ResumeAnalysis() {
           
           <FileUpload
             onFileUpload={handleFileUpload}
-            isLoading={isAnalyzing}
-            accept=".pdf,.doc,.docx"
           />
         </Card>
 
         {score !== null && (
           <>
-            <ATSScore score={score} className="mb-8" />
-            <PerformanceReview score={score} />
+            <ATSScore score={score} />
+            <PerformanceReview 
+              onRestart={handleRestart}
+              hrScore={score}
+              technicalScore={Math.round(score * 0.9)} // Simulated technical score
+              feedback={[
+                "Strong professional experience section",
+                "Clear presentation of skills and achievements",
+                "Well-structured resume format",
+                "Consider adding more quantifiable achievements"
+              ]}
+            />
           </>
         )}
       </div>
