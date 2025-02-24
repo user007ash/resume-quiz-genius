@@ -7,6 +7,7 @@ const LandingPage = lazy(() => import('@/components/landing/LandingPage').then(m
 const InterviewProcess = lazy(() => import('@/components/interview/InterviewProcess').then(module => ({ default: module.InterviewProcess })));
 const NotFound = lazy(() => import('@/pages/NotFound'));
 const OnlineTest = lazy(() => import('@/pages/OnlineTest').then(module => ({ default: module.OnlineTest })));
+const Dashboard = lazy(() => import('@/pages/Dashboard'));
 
 // Loading component for suspense fallback
 const LoadingSpinner = () => (
@@ -138,7 +139,7 @@ export const routes = [
     element: (
       <Suspense fallback={<LoadingSpinner />}>
         <ProtectedRoute>
-          <div>Dashboard (Coming Soon)</div>
+          <Dashboard />
         </ProtectedRoute>
       </Suspense>
     ),
