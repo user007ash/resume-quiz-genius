@@ -1,162 +1,29 @@
-import { lazy, Suspense, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
 
-// Lazy load components
-const LandingPage = lazy(() => import('@/components/landing/LandingPage').then(module => ({ default: module.LandingPage })));
-const InterviewProcess = lazy(() => import('@/components/interview/InterviewProcess').then(module => ({ default: module.InterviewProcess })));
-const NotFound = lazy(() => import('@/pages/NotFound'));
-const OnlineTest = lazy(() => import('@/pages/OnlineTest').then(module => ({ default: module.OnlineTest })));
-
-// Loading component for suspense fallback
-const LoadingSpinner = () => (
-  <div className="min-h-screen flex items-center justify-center">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4f46e5]"></div>
-  </div>
-);
-
-// Protected route wrapper
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { toast } = useToast();
-  const isAuthenticated = false; // Replace with your auth logic
-
-  if (!isAuthenticated) {
-    toast({
-      title: "Authentication Required",
-      description: "Please sign in to access this page",
-      variant: "destructive",
-    });
-    return <Navigate to="/signin" replace />;
-  }
-
-  return <>{children}</>;
-};
-
-// Landing page wrapper with required props
-const LandingPageWrapper = () => {
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState('home');
-
-  const handleNavigation = (section: string) => {
-    if (section === 'dashboard') {
-      toast({
-        title: "Coming Soon",
-        description: "The dashboard feature will be available soon!",
-        variant: "default",
-      });
-    } else if (section === 'about') {
-      toast({
-        title: "Coming Soon",
-        description: "The about section will be available soon!",
-        variant: "default",
-      });
-    }
-    setActiveSection(section);
-  };
-
-  return (
-    <LandingPage
-      activeSection={activeSection}
-      onNavigate={handleNavigation}
-      onGetStarted={() => {
-        setActiveSection('resume-analysis');
-        navigate('/resume-analysis');
-      }}
-    />
-  );
-};
-
-// Interview process wrapper with required props
-const InterviewProcessWrapper = () => {
-  const navigate = useNavigate();
-  const initialState = {
-    step: 1,
-    atsScore: null,
-    currentQuestionIndex: 0,
-    allQuestions: [],
-    analysisResult: {
-      hrScore: 0,
-      technicalScore: 0,
-      feedback: []
-    }
-  };
-
-  const handleFileUpload = (file: File, resumeText: string) => {
-    console.log('File uploaded:', file, resumeText);
-    // Implement file upload logic
-  };
-
-  const handleAnswer = (answer: any) => {
-    console.log('Answer submitted:', answer);
-    // Implement answer handling logic
-  };
-
-  return (
-    <InterviewProcess
-      {...initialState}
-      onFileUpload={handleFileUpload}
-      onAnswer={handleAnswer}
-      onNextStep={() => console.log('Next step')}
-      onRestart={() => {
-        navigate('/resume-analysis');
-      }}
-      onHome={() => {
-        navigate('/');
-      }}
-    />
-  );
-};
+import Index from '@/pages/Index';
+import { OnlineTest } from '@/pages/OnlineTest';
+import NotFound from '@/pages/NotFound';
+import ResumeAnalysis from '@/pages/ResumeAnalysis';
+import Dashboard from '@/pages/Dashboard';
 
 export const routes = [
   {
-    path: "/",
-    element: (
-      <Suspense fallback={<LoadingSpinner />}>
-        <LandingPageWrapper />
-      </Suspense>
-    ),
+    path: '/',
+    element: <Index />,
   },
   {
-    path: "/resume-analysis",
-    element: (
-      <Suspense fallback={<LoadingSpinner />}>
-        <InterviewProcessWrapper />
-      </Suspense>
-    ),
+    path: '/resume-analysis',
+    element: <ResumeAnalysis />,
   },
   {
-    path: "/online-test",
-    element: (
-      <Suspense fallback={<LoadingSpinner />}>
-        <OnlineTest />
-      </Suspense>
-    ),
+    path: '/online-test',
+    element: <OnlineTest />,
   },
   {
-    path: "/dashboard",
-    element: (
-      <Suspense fallback={<LoadingSpinner />}>
-        <ProtectedRoute>
-          <div>Dashboard (Coming Soon)</div>
-        </ProtectedRoute>
-      </Suspense>
-    ),
+    path: '/dashboard',
+    element: <Dashboard />,
   },
   {
-    path: "/signin",
-    element: (
-      <Suspense fallback={<LoadingSpinner />}>
-        <div>Sign In (Coming Soon)</div>
-      </Suspense>
-    ),
-  },
-  {
-    path: "*",
-    element: (
-      <Suspense fallback={<LoadingSpinner />}>
-        <NotFound />
-      </Suspense>
-    ),
+    path: '*',
+    element: <NotFound />,
   },
 ];
