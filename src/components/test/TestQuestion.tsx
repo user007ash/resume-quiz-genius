@@ -3,17 +3,35 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { ChevronLeft, ChevronRight, Timer } from 'lucide-react';
 
 interface TestQuestionProps {
   question: string;
   options: string[];
   onAnswer: (answer: string) => void;
   onTimeout: () => void;
+  onNext: () => void;
+  onPrevious: () => void;
+  currentAnswer?: string;
+  showNavigation: boolean;
 }
 
-export const TestQuestion = ({ question, options, onAnswer, onTimeout }: TestQuestionProps) => {
-  const [timeLeft, setTimeLeft] = useState(60); // Changed to 60 seconds
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+export const TestQuestion = ({ 
+  question, 
+  options, 
+  onAnswer, 
+  onTimeout, 
+  onNext, 
+  onPrevious, 
+  currentAnswer,
+  showNavigation 
+}: TestQuestionProps) => {
+  const [timeLeft, setTimeLeft] = useState(60);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(currentAnswer || null);
+
+  useEffect(() => {
+    setSelectedAnswer(currentAnswer || null);
+  }, [currentAnswer, question]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -40,9 +58,12 @@ export const TestQuestion = ({ question, options, onAnswer, onTimeout }: TestQue
       <div className="space-y-2">
         <div className="flex justify-between items-center">
           <span className="text-sm font-medium text-gray-500">Time Remaining</span>
-          <span className="text-sm font-bold text-primary">{timeLeft}s</span>
+          <div className="flex items-center gap-2 text-primary">
+            <Timer className="w-4 h-4" />
+            <span className="text-sm font-bold">{timeLeft}s</span>
+          </div>
         </div>
-        <Progress value={(timeLeft / 60) * 100} /> {/* Updated for 60 seconds */}
+        <Progress value={(timeLeft / 60) * 100} />
       </div>
       
       <h3 className="text-lg font-medium">{question}</h3>
@@ -54,12 +75,32 @@ export const TestQuestion = ({ question, options, onAnswer, onTimeout }: TestQue
             variant={selectedAnswer === option ? "default" : "outline"}
             className="w-full justify-start text-left"
             onClick={() => handleAnswerClick(option)}
-            disabled={selectedAnswer !== null}
           >
             {option}
           </Button>
         ))}
       </div>
+
+      {showNavigation && (
+        <div className="flex justify-between pt-4">
+          <Button
+            variant="outline"
+            onClick={onPrevious}
+            className="gap-2"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            onClick={onNext}
+            className="gap-2"
+          >
+            Next
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
     </Card>
   );
 };
